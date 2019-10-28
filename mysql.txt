@@ -90,6 +90,6 @@ linux中：vim /etc/my.cnf
 
 
 iz/lVV/kj7lA
-qw/HHH/qw75h
+
 
 
