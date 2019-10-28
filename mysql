@@ -1,0 +1,94 @@
+https://dev.mysql.com/get/mysql80-community-release-el6-3.noarch.rpm
+
+1)查看本地是否安装了mysql：rpm  -qa | grep  mysql
+
+2)卸载本地自带的mysql：yum remove mysql包
+
+3)官网yum repository 下载安装包：wget http://dev.mysql.com/get/mysql80-community-release-el6-3.noarch.rpm
+4)安装下载下来的rpm包
+
+yum localinstall mysql80-community-release-el6-3.noarch.rpm
+
+5)查看可用的安装包
+
+yum repolist enabled|grep mysql
+
+6)接下来需要更改mysql版本了
+
+vim /etc/yum.repos.d/mysql-community.repo
+比如要安装5.7版本，将80源的enabled=1改成enabled=0。然后再将5.7源的enabled=0改成enabled=1即可。
+
+7)安装mysql
+
+yum install mysql-community-server -y
+
+8)启动mysql并更改相关配置
+
+1>启动mysql：service mysqld start
+
+2>查看mysql是否自启动,并且设置开启自启动
+
+chkconfig --list | grep mysqld
+
+chkconfig mysqld on
+
+3>查看初始密码：grep "password" /var/log/mysqld.log
+4>登录mysql：mysql -u root -p
+
+5>修改密码：SET PASSWORD FOR 'root'@'localhost' = PASSWORD('123456');
+set password=password('tt/HHH/tt66t');
+
+修改的密码过于简单可能会报错：
+
+ERROR 1819 (HY000): Your password does not satisfy the current policy requirements
+
+执行以下语句：
+
+set global validate_password_policy=0;
+
+set global validate_password_length=4;
+
+再执行修改密码语句
+
+6>开放root账户远程访问
+
+grant all privileges on *.* to 'root'@'%' identified by '123456' with grant option; 
+
+7>刷新权限表
+
+FLUSH PRIVILEGES;
+
+8>修改字符集为UTF-8
+
+linux中：vim /etc/my.cnf
+
+　　在[mysqld]部分添加：
+
+　　port=3306
+
+　　character-set-server=utf8
+
+　　在文件末尾新增[client]段，并在[client]段添加：
+
+　　port=3306
+　　socket=/var/lib/mysql/mysql.sock
+
+　　default-character-set=utf8
+
+　　在[mysql]部分添加：
+
+　　no-auto-rehash
+
+　　default-character-set=utf8
+
+　　修改好之后重启mysqld服务：
+
+　　service mysqld restart
+
+　　(导入sql脚本，先use 数据库，再source /home/sql/test.sql)
+
+
+iz/lVV/kj7lA
+qw/HHH/qw75h
+
+
