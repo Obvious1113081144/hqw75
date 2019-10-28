@@ -33,6 +33,7 @@ chkconfig --list | grep mysqld
 chkconfig mysqld on
 
 3>查看初始密码：grep "password" /var/log/mysqld.log
+如果找不到默认初始密码，可能需要先删除之前安装过而残留的mysql数据库文件。
 4>登录mysql：mysql -u root -p
 
 5>修改密码：SET PASSWORD FOR 'root'@'localhost' = PASSWORD('123456');
