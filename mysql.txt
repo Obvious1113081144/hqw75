@@ -90,6 +90,12 @@ linux中：vim /etc/my.cnf
 
 
 iz/lVV/kj7lA
+主从复制
+grant replication slave on *.* to 'slave1'@'192.168.74.129' identified by 'qw/HHH/qw75h';
+flush privileges;
+change master to master_host='192.168.74.1',master_user='slave1',master_password='qw/HHH/qw75h',master_log_file='mysqlbin.000006',master_log_pos=604;
+start slave;
+stop slave;
 
 
 
