@@ -1,0 +1,110 @@
+eureka原理
+
+在很多分布式的环境中都要求实现分布式事务、分布式锁，但是java在单机环境中是无法实现的，必须借助外部工具来实现
+
+1、基于数据库
+
+2、基于redis或者memcached
+
+3、基于Zookeeper
+
+但是这三种的实现也各有有缺点：
+
+性能：缓存 > Zookeeper >= 数据库
+
+可靠：Zookeeper > 缓存 > 数据库
+
+
+
+
+一、基于数据库来实现分布锁
+
+原理：
+
+最简单的就是直接创建一张锁表，然后通过操作该表中的数据来实现了。
+
+当我们要锁住某个方法或资源时，我们就在该表中增加一条记录，想要释放锁的时候就删除这条记录。
+
+1、数据库的性能以及可靠性都会影响性能，数据库必须实现高可用性部署，防止主机挂了，整个业务就挂了
+
+2、这把锁只能是非阻塞的，没法重入，也无法实现队列机制。重入必须一直while，直到有最终结果回应
+
+3、加大数据库的开销影响其他的业务的进行
+
+
+
+二、基于缓存实现分布锁
+
+这里主讲redis
+
+
+1、选用Redis实现分布式锁原因：
+
+Redis有很高的性能； 
+
+Redis命令对此支持较好，实现起来比较方便
+
+Redis是单线程的，天生就能处理并发
+
+2、使用命令介绍：
+
+（1）SETNX
+
+SETNX key val：当且仅当key不存在时，set一个key为val的字符串，返回1；若key存在，则什么都不做，返回0。
+1
+（2）expire
+
+expire key timeout：为key设置一个超时时间，单位为second，超过这个时间锁会自动释放，避免死锁。
+1
+（3）delete
+
+delete key：删除key
+1
+在使用Redis实现分布式锁的时候，主要就会使用到这三个命令。
+
+3、实现原理：
+
+（1）获取锁的时候，使用setnx加锁，并使用expire命令为锁添加一个超时时间，超过该时间则自动释放锁，锁的value值为一个随机生成的UUID，通过此在释放锁的时候进行判断。
+
+（2）获取锁的时候还设置一个获取的超时时间，若超过这个时间则放弃获取锁。
+
+（3）释放锁的时候，通过UUID判断是不是该锁，若是该锁，则执行delete进行锁释放。
+
+
+
+三、基于zookeeper实现分布锁
+
+原理：ZooKeeper是一个为分布式应用提供一致性服务的开源组件，它内部是一个分层的文件系统目录树结构，规定同一个目录下只能有一个唯一文件名
+
+实现步骤：
+
+（1）创建一个目录mylock； 
+（2）线程A想获取锁就在mylock目录下创建临时顺序节点； 
+（3）获取mylock目录下所有的子节点，然后获取比自己小的兄弟节点，如果不存在，则说明当前线程顺序号最小，获得锁； 
+（4）线程B获取所有节点，判断自己不是最小节点，设置监听比自己次小的节点； 
+（5）线程A处理完，删除自己的节点，线程B监听到变更事件，判断自己是不是最小的节点，如果是则获得锁。
+
+这里推荐一个Apache的开源库Curator，它是一个ZooKeeper客户端，Curator提供的InterProcessMutex是分布式锁的实现，acquire方法用于获取锁，release方法用于释放锁。
+
+public boolean tryLock(long timeout, TimeUnit unit) throws InterruptedException {
+    try {
+        return interProcessMutex.acquire(timeout, unit);
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return true;
+}
+public boolean unlock() {
+    try {
+        interProcessMutex.release();
+    } catch (Throwable e) {
+        log.error(e.getMessage(), e);
+    } finally {
+        executorService.schedule(new Cleaner(client, path), delayTimeForClean, TimeUnit.MILLISECONDS);
+    }
+    return true;
+}
+
+优点：具备高可用、可重入、阻塞锁特性，可解决失效死锁问题。
+
+缺点：因为需要频繁的创建和删除节点，性能上不如Redis方式。
