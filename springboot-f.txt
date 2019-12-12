@@ -1,0 +1,215 @@
+转载自https://blog.csdn.net/Kevin_Gu6/article/details/88547424
+什么是 Spring Boot？
+SpringBoot 是 Spring 开源组织下的子项目，
+是 Spring 组件一站式解决方案，主要是简化了使用 Spring 的难度，简省了繁重的配置，提供了各种启动器，开发者能快速上手。
+
+为什么要用 Spring Boot？
+Spring Boot 优点非常多，如：
+一、独立运行
+Spring Boot而且内嵌了各种servlet容器，Tomcat、Jetty等，现在不再需要打成war包部署到容器中，Spring Boot只要打成一个可执行的jar包就能独立运行，
+所有的依赖包都在一个jar包内。
+二、简化配置
+spring-boot-starter-web启动器自动依赖其他组件，简少了maven的配置。
+三、自动配置
+Spring Boot能根据当前类路径下的类、jar包来自动配置bean，如添加一个spring-boot-starter-web启动器就能拥有web的功能，无需其他配置。
+四、无代码生成和XML配置
+Spring Boot配置过程中无代码生成，也无需XML配置文件就能完成所有配置工作，这一切都是借助于条件注解完成的，这也是Spring4.x的核心功能之一。
+五、应用监控
+Spring Boot提供一系列端点可以监控服务及应用，做健康检测。
+
+
+Spring Boot 的核心配置文件有哪几个？它们的区别是什么？
+Spring Boot 中有以下两种配置文件：
+bootstrap (.yml 或者 .properties)
+application (.yml 或者 .properties)
+bootstrap/ application 的区别：
+Spring Cloud 构建于 Spring Boot 之上，在 Spring Boot 中有两种上下文，一种是 bootstrap,，另外一种是 application,，bootstrap 是应用程序的父上下文，
+也就是说 bootstrap 加载优先于 applicaton。bootstrap 主要用于从额外的资源来加载配置信息，还可以在本地外部配置文件中解密属性。
+这两个上下文共用一个环境，它是任何Spring应用程序的外部属性的来源。bootstrap 里面的属性会优先加载，它们默认也不能被本地相同配置覆盖。
+因此，对比 application 配置文件，bootstrap 配置文件具有以下几个特性：
+boostrap 由父 ApplicationContext 加载，比 applicaton 优先加载
+boostrap 里面的属性不能被覆盖
+bootstrap/ application 的应用场景：
+application 配置文件这个容易理解，主要用于 Spring Boot 项目的自动化配置。
+bootstrap 配置文件有以下几个应用场景：
+使用 Spring Cloud Config 配置中心时，这时需要在 bootstrap 配置文件中添加连接到配置中心的配置属性来加载外部配置中心的配置信息；
+一些固定的不能被覆盖的属性
+一些加密/解密的场景。
+
+Spring Boot 的配置文件有哪几种格式？它们有什么区别？
+.properties 和 .yml，它们的区别主要是书写格式不同。
+1).properties
+app.user.name = javastack
+2).yml
+app:
+  user:
+    name: javastack
+另外，.yml 格式不支持 @PropertySource 注解导入配置。
+
+
+Spring Boot 的核心注解是哪个？它主要由哪几个注解组成的？
+启动类上面的注解是@SpringBootApplication，它也是 Spring Boot 的核心注解，主要组合包含了以下 3 个注解：
+@SpringBootConfiguration：组合了 @Configuration 注解，实现配置文件的功能。
+@EnableAutoConfiguration：打开自动配置的功能，也可以关闭某个自动配置的选项，
+如关闭数据源自动配置功能： @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class })。
+@ComponentScan：Spring组件扫描。
+
+
+
+开启 Spring Boot 特性有哪几种方式？
+有以下两种方式：
+1. 继承spring-boot-starter-parent项目
+<parent>  
+<groupId>org.springframework.boot</groupId>   
+<artifactId>spring-boot-starter-parent</artifactId>
+<version>1.5.6.RELEASE</version>
+</parent>
+2. 导入spring-boot-dependencies项目依赖
+<dependencyManagement>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-dependencies</artifactId>
+            <version>1.5.6.RELEASE</version>
+            <type>pom</type>
+            <scope>import</scope>
+        </dependency>
+    <dependencies>
+</dependencyManagement>
+Spring Boot依赖注意点：
+1. 属性覆盖只对继承有效
+Spring Boot依赖包里面的组件的版本都是和当前Spring Boot绑定的，如果要修改里面组件的版本，只需要添加如下属性覆盖即可，但这种方式只对继承有效，
+导入的方式无效。
+<properties>
+    <slf4j.version>1.7.25<slf4j.version>
+</properties>
+如果导入的方式要实现版本的升级，达到上面的效果，这样也可以做到，把要升级的组件依赖放到Spring Boot之前。
+需要注意，要修改Spring Boot的依赖组件版本可能会造成不兼容的问题。
+
+
+Spring Boot 需要独立的容器运行吗？
+可以不需要，内置了 Tomcat/Jetty 等容器。
+
+
+运行 Spring Boot 有哪几种方式？
+1）打包用命令或者放到容器中运行
+2）用 Maven/Gradle 插件运行
+3）直接执行 main 方法运行
+
+
+Spring Boot 自动配置原理是什么？
+Spring Boot的自动配置注解是@EnableAutoConfiguration， 从上面的@Import的类可以找到下面自动加载自动配置的映射。
+org.springframework.core.io.support.SpringFactoriesLoader.loadFactoryNames(Class<?>, ClassLoader)
+public static List<String> loadFactoryNames(Class<?> factoryClass,ClassLoader classLoader){
+ 
+		String factoryClassName = factoryClass.getName();
+		try{
+			Enumeration<URL> urls = (classLoader!=null?classLoader.getResources(FACTORIES_RESOURCE_LOCATION):lassLoader.getSystemResources(FACTORIES_RESOURCE_LOCATION));
+			
+			List<String> result = new ArrayList<String>();
+ 
+			while(urls.hasMoreElements()){
+					URL url = urls.nextElement();
+					Properties properties = PropertiesLoaderUtils.loadProperties(new UrlResource(url));
+					String factoryClassNames = properties.getProperty(factoryClassName);
+					result.addAll(Arrays.asList(StringUtils.commaDelimitedListToStringArray(factoryClassNames)));
+					
+			}
+			return result;
+		}catch(IOException ex){
+			
+			throw new IllegalArgumentException("Unable to load ["+factoryClass.getName()+"] factories from location ["+FACTORIES_RESOURCE_LOCATION+"]",ex);
+ 
+	}
+ 
+}
+这个方法会加载类路径及所有jar包下META-INF/spring.factories配置中映射的自动配置的类。
+/**
+ * The location to look for factories.
+ * <p>Can be present in multiple JAR files.
+ */
+ 
+public static final String FACTORIES_RESOURCE_LOCATION = "META-INF/spring.factories";
+查看Spring Boot自带的自动配置的包： spring-boot-autoconfigure-1.5.6.RELEASE.jar，打开其中的META-INF/spring.factories文件会找到自动配置的映射。
+再来看看数据源自动配置的实现注解
+@Configuration,@ConditionalOnClass就是自动配置的核心，首先它得是一个配置文件，其次根据类路径下是否有这个类去自动配置。
+
+
+Spring Boot 的目录结构是怎样的？
+Spring Boot 与传统项目最大的区别是，传统项目都是打成 WAR 包部署到服务器上面，需要额外的 Servlet 容器， 而 Spring Boot 则可以直接打成 jar包，
+并内置集成了 Servlet 容器，通过命令 java -jar xx.jar 则可以直接运行，不需要独立的 Servlet 容器。
+打成可执行 jar 包后，我们来看下其中的 META-INF/MANIFEST.MF 文件：
+其中有一个 Start-Class 便是这个 jar 包的入口类，这个入口类推荐是放在一个项目的顶层包中，其他所有的类都放在其子包下面，目录结构如以下所示：
+这个目录结构是主流及推荐的做法，而在主入口类上加上 @SpringBootApplication 注解来开启 Spring Boot 的各项能力，如自动配置、组件扫描等。
+如果你不想这么做，你也可以充分利用 @EnableAutoConfiguration 和 @ComponentScan 注解自定义你的行为，不过这不是推荐的做法。
+
+
+你如何理解 Spring Boot 中的 Starters？
+Starters是什么：
+Starters可以理解为启动器，它包含了一系列可以集成到应用里面的依赖包，你可以一站式集成Spring及其他技术，而不需要到处找示例代码和依赖包。
+如你想使用Spring JPA访问数据库，只要加入spring-boot-starter-data-jpa启动器依赖就能使用了。Starters包含了许多项目中需要用到的依赖，
+它们能快速持续的运行，都是一系列得到支持的管理传递性依赖。
+Starters命名：
+Spring Boot官方的启动器都是以spring-boot-starter-命名的，代表了一个特定的应用类型。第三方的启动器不能以spring-boot开头命名，
+它们都被Spring Boot官方保留。一般一个第三方的应该这样命名，像mybatis的mybatis-spring-boot-starter。
+Starters分类：
+1. Spring Boot应用类启动器
+2. Spring Boot生产启动器
+3. Spring Boot技术类启动器
+4. 其他第三方启动器
+
+
+如何在 Spring Boot 启动的时候运行一些特定的代码？
+如果你想在Spring Boot启动的时候运行一些特定的代码，你可以实现接口ApplicationRunner或者CommandLineRunner，这两个接口实现方式一样，
+它们都只提供了一个run方法。
+CommandLineRunner：启动获取命令行参数
+ApplicationRunner：启动获取应用启动的时候参数
+使用方式：
+
+或者这样
+
+启动顺序：
+如果启动的时候有多个ApplicationRunner和CommandLineRunner，想控制它们的启动顺序，
+可以实现 org.springframework.core.Ordered接口或者使用 org.springframework.core.annotation.Order注解。
+
+
+Spring Boot 有哪几种读取配置的方式？
+读取application文件：
+在application.yml或者properties文件中添加：
+info.address=USA
+info.company=Spring
+info.degree=high
+一、@Value注解读取方式：
+二、@ConfigurationProperties注解读取方式：
+读取指定文件：
+资源目录下建立config/db-config.properties:
+db.username=root
+db.password=123456
+一、@PropertySource+@Value注解读取方式：
+注意：@PropertySource不支持yml文件读取。
+二、@PropertySource+@ConfigurationProperties注解读取方式：
+三、Environment读取方式：
+以上所有加载出来的配置都可以通过Environment注入获取到：
+总结
+从以上示例来看，Spring Boot可以通过@PropertySource,@Value,@Environment,@ConfigurationProperties来绑定变量。
+
+
+Spring Boot 支持哪些日志框架？推荐和默认的日志框架是哪个？
+Spring Boot支持Java Util Logging,Log4j2,Lockback作为日志框架，如果你使用starters启动器，Spring Boot将使用Logback作为默认日志框架。
+无论使用哪种日志框架，Spring Boot都支持配置将日志输出到控制台或者文件中。
+spring-boot-starter启动器包含spring-boot-starter-logging启动器并集成了slf4j日志抽象及Logback日志框架。
+属性配置日志：
+Spring Boot支持属性配置日志参数，这个不是很灵活，不细讲。
+参考配置：
+如：
+自定义日志文件：
+根据不同的日志框架，默认加载的日志配置文件的文件名，放在资源根目录下，其他的目录及文件名不能被加载。
+既然默认自带了Logback框架，Logback也是最优秀的日志框架，往资源目录下创建一个logback-spring.xml即可。
+强烈推荐使用logback-spring.xml作为文件名，因为logback.xml加载太早。
+日志初始化在ApplicationContext创建之前，所以@PropertySources加载的配置是读取不到的，系统环境变量、Spring Environment及application
+，bootstrap配置文件中的信息可以读取到。
+读取系统环境属性：
+读取当前应用Environment中的属性：
+Spring Boot也支持通过springProfile来加载不同profiles下的配置：
+
+
