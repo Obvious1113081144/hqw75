@@ -233,4 +233,366 @@ ctrl + shift + alt + / > Registry > 勾选Compiler autoMake allow when app runni
 4、devtools会在windows资源管理器占用java进程，在开发工具里面杀不掉，只能手动kill掉，不然重启会选成端口重复绑定报错。
 
 
+你如何理解 Spring Boot 配置加载顺序？
+使用 Spring Boot 会涉及到各种各样的配置，如开发、测试、线上就至少 3 套配置信息了。
+Spring Boot 可以轻松的帮助我们使用相同的代码就能使开发、测试、线上环境使用不同的配置。
+在 Spring Boot 里面，可以使用以下几种方式来加载配置：
+1、properties文件；
+2、YAML文件；
+3、系统环境变量；
+4、命令行参数；
+等等……
+配置属性加载的顺序如下：
+1、开发者工具 `Devtools` 全局配置参数；
+2、单元测试上的 `@TestPropertySource` 注解指定的参数；
+3、单元测试上的 `@SpringBootTest` 注解指定的参数；
+4、命令行指定的参数，如 `java -jar springboot.jar --name="Java技术栈"`； 
+5、命令行中的 `SPRING_APPLICATION_JSONJSON` 指定参数, 如 `java -Dspring.application.json='{"name":"Java技术栈"}' -jar springboot.jar` 
+6、`ServletConfig` 初始化参数； 
+7、`ServletContext` 初始化参数； 
+8、JNDI参数（如 `java:comp/env/spring.application.json`）； 
+9、Java系统参数（来源：`System.getProperties()`）； 
+10、操作系统环境变量参数； 
+11、`RandomValuePropertySource` 随机数，仅匹配：`ramdom.*`； 
+12、JAR包外面的配置文件参数（`application-{profile}.properties（YAML）`） 
+13、JAR包里面的配置文件参数（`application-{profile}.properties（YAML）`） 
+14、JAR包外面的配置文件参数（`application.properties（YAML）`） 
+15、JAR包里面的配置文件参数（`application.properties（YAML）`） 
+16、`@Configuration`配置文件上 `@PropertySource` 注解加载的参数； 
+17、默认参数（通过 `SpringApplication.setDefaultProperties` 指定）；
+数字小的优先级越高，即数字小的会覆盖数字大的参数值，我们来实践下，验证以上配置参数的加载顺序。
+1、在主应用程序中添加 Java 系统参数
+2、在 application.properties 文件中添加属性
+3、在 application-dev.properties 文件中添加属性
+4、添加测试类
+运行 test 单元测试，程序输出：
+
+
+Spring Boot 如何定义多套不同环境配置？
+首先我们要了解一个名词：Profile
+简单来说，Profile就是Spring Boot可以对不同环境或者指令来读取不同的配置文件。
+假如有开发、测试、生产三个不同的环境，需要定义三个不同环境下的配置。
+基于properties文件类型
+你可以另外建立3个环境下的配置文件：
+applcation.properties
+application-dev.properties
+application-test.properties
+application-prod.properties
+然后在applcation.properties文件中指定当前的环境spring.profiles.active=test，这时候读取的就是application-test.properties文件。
+基于yml文件类型
+只需要一个applcation.yml文件就能搞定，推荐此方式。
+此时读取的就是prod的配置，prod包含proddb,prodmq，此时可以读取proddb,prodmq下的配置。
+也可以同时激活三个配置。
+基于Java代码
+在JAVA配置代码中也可以加不同Profile下定义不同的配置文件，@Profile注解只能组合使用@Configuration和@Component注解。
+指定Profile
+main方法启动方式：
+插件启动方式：
+jar运行方式：
+除了在配置文件和命令行中指定Profile，还可以在启动类中写死指定，通过SpringApplication.setAdditionalProfiles方法。
+SpringApplication.class：
+
+
+Spring Boot 可以兼容老 Spring 项目吗，如何做？
+可以兼容，使用 @ImportResource 注解导入老 Spring 项目配置文件。
+
+
+保护 Spring Boot 应用有哪些方法？
+1.在生产中使用HTTPS
+2.使用Snyk检查你的依赖关系
+3.升级到最新版本
+4.启用CSRF保护
+5.使用内容安全策略防止XSS攻击
+6.使用OpenID Connect进行身份验证
+7.管理密码？使用密码哈希！
+8.安全地存储秘密
+9.使用OWASP的ZAP测试您的应用程序
+10.让你的安全团队进行代码审查
+
+更多请看这篇文章《10 种保护 Spring Boot 应用的绝佳方法》。
+
+
+Spring Boot 2.X 有什么新特性？与 1.X 有什么区别？
+配置变更
+JDK 版本升级
+第三方类库升级
+响应式 Spring 编程支持
+HTTP/2 支持
+配置属性绑定
+更多改进与加强...
+具体请看这篇文章《Spring Boot 2.x 新特性总结及迁移指南》。
+
+
+JavaBean是什么时候创建的？
+在项目里面写一个bean：
+@Controller
+public class TestController {
+    public TestController(){
+        System.out.println("TestController 创建了");
+    }
+}
+1.直接启动，通过日志可以看到TestController 被创建了
+
+2018-07-02 17:38:58.083  INFO 7076 --- [ost-startStop-1] o.s.b.w.servlet.ServletRegistrationBean  : Mapping servlet: 'dispatcherServlet' to [/]
+2018-07-02 17:38:58.088  INFO 7076 --- [ost-startStop-1] o.s.b.w.servlet.FilterRegistrationBean   : Mapping filter: 'characterEncodingFilter' to: [/*]
+2018-07-02 17:38:58.088  INFO 7076 --- [ost-startStop-1] o.s.b.w.servlet.FilterRegistrationBean   : Mapping filter: 'hiddenHttpMethodFilter' to: [/*]
+2018-07-02 17:38:58.089  INFO 7076 --- [ost-startStop-1] o.s.b.w.servlet.FilterRegistrationBean   : Mapping filter: 'httpPutFormContentFilter' to: [/*]
+2018-07-02 17:38:58.089  INFO 7076 --- [ost-startStop-1] o.s.b.w.servlet.FilterRegistrationBean   : Mapping filter: 'requestContextFilter' to: [/*]
+TestController 创建了
+2018-07-02 17:38:58.483  INFO 7076 --- [           main] s.w.s.m.m.a.RequestMappingHandlerAdapter : Looking for @ControllerAdvice: org.springframework.boot.context.embedded.AnnotationConfigEmbeddedWebApplicationContext@78dd667e: startup date [Mon Jul 02 17:38:55 CST 2018]; root of context hierarchy
+2018-07-02 17:38:58.558  INFO 7076 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/error]}" onto public org.springframework.http.ResponseEntity<java.util.Map<java.lang.String, java.lang.Object>> org.springframework.boot.autoconfigure.web.BasicErrorController.error(javax.servlet.http.HttpServletRequest)
+2018-07-02 17:38:58.559  INFO 7076 --- [           main] s.w.s.m.m.a.RequestMappingHandlerMapping : Mapped "{[/error],produces=[text/html]}" onto public org.springframework.web.servlet.ModelAndView org.springframework.boot.autoconfigure.web.BasicErrorController.errorHtml(javax.servlet.http.HttpServletRequest,javax.servlet.http.HttpServletResponse)
+2018-07-02 17:38:58.587  INFO 7076 --- [           main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Mapped URL path [/webjars/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2018-07-02 17:38:58.587  INFO 7076 --- [           main] o.s.w.s.handler.SimpleUrlHandlerMapping  : Mapped URL path [/**] onto handler of type [class org.springframework.web.servlet.resource.ResourceHttpRequestHandler]
+2.设置断点进行调试
+
+这一步是关键的，在进行操作的时候，可根据自己的情况进行断点调试，这边给出几个推荐的断点位置
+
+断点一：启动位置
+
+public class App {
+    public static void main(String[] args) {
+        SpringApplication.run(App.class,args);
+    }
+}
+断点二： run 方法内部 
+
+public ConfigurableApplicationContext run(String... args) {
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+        ConfigurableApplicationContext context = null;
+        FailureAnalyzers analyzers = null;
+        configureHeadlessProperty();
+        SpringApplicationRunListeners listeners = getRunListeners(args);
+        listeners.starting();
+        try {
+            ApplicationArguments applicationArguments = new DefaultApplicationArguments(
+                    args);
+            ConfigurableEnvironment environment = prepareEnvironment(listeners,
+                    applicationArguments);
+            Banner printedBanner = printBanner(environment);
+            context = createApplicationContext();
+            analyzers = new FailureAnalyzers(context);
+            prepareContext(context, environment, listeners, applicationArguments,
+                    printedBanner);
+            refreshContext(context);
+            afterRefresh(context, applicationArguments);
+            listeners.finished(context, null);
+            stopWatch.stop();
+            if (this.logStartupInfo) {
+                new StartupInfoLogger(this.mainApplicationClass)
+                        .logStarted(getApplicationLog(), stopWatch);
+            }
+            return context;
+        }
+        catch (Throwable ex) {
+            handleRunFailure(context, listeners, analyzers, ex);
+            throw new IllegalStateException(ex);
+        }
+    }
+该方法就是Spring Boot项目启动时 所要执行的代码，根据阅读可以分为以下步骤： 
+
+1. 加载环境变量 
+2. 创建上下文 ConfigurableApplicationContext 对象 
+3. 准备上下文 prepareContext() 
+4. 刷新上下文 refreshContext() 
+5. 刷新之后的处理 afterRefresh() 
+
+可以在以上的五个地方进行断点设置，然后开始调试,结合控制台的日志一步一步观察。
+
+通过断点调试，发现执行完refreshContext()方法执行完毕之后，日志打印了：
+
+TestController 创建了
+初步判断，Bean在执行refreshContext() 方法的时候创建的，那么接下来我们看一下refreshContext这个方法干了什么事情？
+
+断点三： 
+进入refreshContext 方法，找到最终调用的方法 refresh()
+
+    @Override
+    public void refresh() throws BeansException, IllegalStateException {
+        synchronized (this.startupShutdownMonitor) {
+            // Prepare this context for refreshing.
+            prepareRefresh();
+ 
+            // Tell the subclass to refresh the internal bean factory.
+            ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
+ 
+            // Prepare the bean factory for use in this context.
+            prepareBeanFactory(beanFactory);
+ 
+            try {
+                // Allows post-processing of the bean factory in context subclasses.
+                postProcessBeanFactory(beanFactory);
+ 
+                // Invoke factory processors registered as beans in the context.
+                invokeBeanFactoryPostProcessors(beanFactory);
+ 
+                // Register bean processors that intercept bean creation.
+                registerBeanPostProcessors(beanFactory);
+ 
+                // Initialize message source for this context.
+                initMessageSource();
+ 
+                // Initialize event multicaster for this context.
+                initApplicationEventMulticaster();
+ 
+                // Initialize other special beans in specific context subclasses.
+                onRefresh();
+ 
+                // Check for listener beans and register them.
+                registerListeners();
+ 
+                // Instantiate all remaining (non-lazy-init) singletons.
+                finishBeanFactoryInitialization(beanFactory);
+ 
+                // Last step: publish corresponding event.
+                finishRefresh();
+            }
+以步骤二的断点设置方式，我们在进行一步调试，发现执行finishBeanFactoryInitialization(beanFactory)方法之后，日志打印了
+
+TestController 创建了
+该方法的具体实现如下：
+
+protected void finishBeanFactoryInitialization(ConfigurableListableBeanFactory beanFactory) {
+        // Initialize conversion service for this context.
+        if (beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME) &&
+                beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class)) {
+            beanFactory.setConversionService(
+                    beanFactory.getBean(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class));
+        }
+ 
+        // Register a default embedded value resolver if no bean post-processor
+        // (such as a PropertyPlaceholderConfigurer bean) registered any before:
+        // at this point, primarily for resolution in annotation attribute values.
+        if (!beanFactory.hasEmbeddedValueResolver()) {
+            beanFactory.addEmbeddedValueResolver(new StringValueResolver() {
+                @Override
+                public String resolveStringValue(String strVal) {
+                    return getEnvironment().resolvePlaceholders(strVal);
+                }
+            });
+        }
+ 
+        // Initialize LoadTimeWeaverAware beans early to allow for registering their transformers early.
+        String[] weaverAwareNames = beanFactory.getBeanNamesForType(LoadTimeWeaverAware.class, false, false);
+        for (String weaverAwareName : weaverAwareNames) {
+            getBean(weaverAwareName);
+        }
+ 
+        // Stop using the temporary ClassLoader for type matching.
+        beanFactory.setTempClassLoader(null);
+ 
+        // Allow for caching all bean definition metadata, not expecting further changes.
+        beanFactory.freezeConfiguration();
+ 
+        // Instantiate all remaining (non-lazy-init) singletons.
+        beanFactory.preInstantiateSingletons();
+    }
+通过调试我们可以发现，执行beanFactory.preInstantiateSingletons();这个方法之后，TestController 被创建了，那么我接下来要做的就是看这个方法具体怎么实现的，调试过程中，我们通过shift+alt+F7 强制进入代码，可以看到其具体实现如下：
+
+@Override
+    public void preInstantiateSingletons() throws BeansException {
+        if (this.logger.isDebugEnabled()) {
+            this.logger.debug("Pre-instantiating singletons in " + this);
+        }
+ 
+        // Iterate over a copy to allow for init methods which in turn register new bean definitions.
+        // While this may not be part of the regular factory bootstrap, it does otherwise work fine.
+        List<String> beanNames = new ArrayList<String>(this.beanDefinitionNames);
+ 
+        // Trigger initialization of all non-lazy singleton beans...
+        for (String beanName : beanNames) {
+            RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
+            if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
+                if (isFactoryBean(beanName)) {
+                    final FactoryBean<?> factory = (FactoryBean<?>) getBean(FACTORY_BEAN_PREFIX + beanName);
+                    boolean isEagerInit;
+                    if (System.getSecurityManager() != null && factory instanceof SmartFactoryBean) {
+                        isEagerInit = AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
+                            @Override
+                            public Boolean run() {
+                                return ((SmartFactoryBean<?>) factory).isEagerInit();
+                            }
+                        }, getAccessControlContext());
+                    }
+                    else {
+                        isEagerInit = (factory instanceof SmartFactoryBean &&
+                                ((SmartFactoryBean<?>) factory).isEagerInit());
+                    }
+                    if (isEagerInit) {
+                        getBean(beanName);
+                    }
+                }
+                else {
+                    getBean(beanName);
+                }
+            }
+        }
+ 
+        // Trigger post-initialization callback for all applicable beans...
+        for (String beanName : beanNames) {
+            Object singletonInstance = getSingleton(beanName);
+            if (singletonInstance instanceof SmartInitializingSingleton) {
+                final SmartInitializingSingleton smartSingleton = (SmartInitializingSingleton) singletonInstance;
+                if (System.getSecurityManager() != null) {
+                    AccessController.doPrivileged(new PrivilegedAction<Object>() {
+                        @Override
+                        public Object run() {
+                            smartSingleton.afterSingletonsInstantiated();
+                            return null;
+                        }
+                    }, getAccessControlContext());
+                }
+                else {
+                    smartSingleton.afterSingletonsInstantiated();
+                }
+            }
+        }
+    }
+采用调试的方式，通过观察我们可以看到，我们的TestController Bean 被加载到beanNames这个List，通过循环语句最终调用了getBean(beanName);去创建了对象，当然getBean内部会调用doGetBean() 方法进行对象的获取或者创建。
+总结
+TestController 这个对象的创建，经过了如下方法调用：
+SpringApplication.run(App.class,args) 
+refreshContext(context) 
+finishBeanFactoryInitialization(beanFactory) 
+beanFactory.preInstantiateSingletons() 
+getBean(beanName) 
+doGetBean()
+
+
+SpringBoot框架中，JavaBean都是单例的吗？多例怎么设置？
+spring bean作用域有以下5个：
+singleton：单例模式，当spring创建applicationContext容器的时候，spring会欲初始化所有的该作用域实例，加上lazy-init就可以避免预处理；
+prototype：原型模式，每次通过getBean获取该bean就会新产生一个实例，创建后spring将不再对其管理；
+====下面是在web项目下才用到的===
+request：搞web的大家都应该明白request的域了吧，就是每次请求都新产生一个实例，和prototype不同就是创建后，接下来的管理，spring依然在监听；
+session：每次会话，同上；
+global session：全局的web域，类似于servlet中的application。
+好了，上面都说了spring的controller默认是单例，那很自然就是singleton了。
+为什么spring要默认是单例呢？原因有二：
+1、为了性能：这个不用废话了，单例不用每次都new，当然快了。
+2、不需要多例：不需要多例会让很多人迷惑，因为spring mvc官方也没明确说不可以多例。
+我这里说不需要的原因是看开发者怎么用了，如果你给controller中定义很多的属性，那么单例肯定会出现竞争访问了。
+因此，只要controller中不定义属性，那么单例完全是安全的。下面给个例子说明下：
+@Controller
+public class MultViewController {   
+    private int index = 0;//非静态
+    @RequestMapping("/show")
+    public String toShow(ModelMap model) {
+        System.out.println(++i);
+        return"show";
+    }
+    @RequestMapping("/test")
+    public String test() {
+        System.out.println(++i);
+        return"test";
+    }
+}
+从此可见，单例是不安全的，会导致属性重复使用。
+最佳实践：
+1、不要在controller中定义成员变量。
+2、万一必须要定义一个非静态成员变量时候，则通过注解@Scope("prototype")，将其设置为多例模式。
+
+
+
 
