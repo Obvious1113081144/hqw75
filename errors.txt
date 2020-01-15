@@ -1,0 +1,1 @@
+1、springboot2.x整合druid数据源时主启动类需要加上@ServletComponentScan注解，否则加载application.yml配置文件时会报错。
