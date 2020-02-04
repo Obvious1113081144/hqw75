@@ -29,3 +29,12 @@ CMD  指定一个容器启动时要运行的命令。Dockerfile中可以有多�
 ENTRYPOINT  指定一个容器启动时要运行的命令。ENTRYPOINT的目的和CMD一样，都是在指定容器启动程序及参数
 ONBUILD  当构建一个被继承的Dockerfile时运行命令，父镜像在被子继承后父镜像的onbuild被触发
 
+dockerfile文件样例
+# volume test
+FROM centos
+VOLUME ["/dataVolumeContainer1","/dataVolumeContainer2"]
+CMD echo "finished,-----success1"
+CMD /bin/bash
+
+docker build -f /mydocker/dockerfile2 -t qiwu/centos:1.0 .
+
