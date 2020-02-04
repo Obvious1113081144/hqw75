@@ -36,5 +36,8 @@ VOLUME ["/dataVolumeContainer1","/dataVolumeContainer2"]
 CMD echo "finished,-----success1"
 CMD /bin/bash
 
+根据dockerfile文件生成镜像
 docker build -f /mydocker/dockerfile2 -t qiwu/centos:1.0 .
 
+容器数据卷继承
+docker run -it --volumes-from dc01 --name dc02 d6646bc69b86
