@@ -41,3 +41,14 @@ docker build -f /mydocker/dockerfile2 -t qiwu/centos:1.0 .
 
 容器数据卷继承
 docker run -it --volumes-from dc01 --name dc02 d6646bc69b86
+
+自定义centos
+FROM centos
+MAINTAINER qiwu<huangqiwu1990@163.com>
+ENV mypath /usr/local
+WORKDIR $mypath
+RUN yum -y install vim
+RUN yum -y install net-tools
+EXPOSE 80
+CMD /bin/bash
+
