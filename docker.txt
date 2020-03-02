@@ -75,3 +75,26 @@ docker run -d -p 9080:8080 --name mytomcat9 -v /mydocker/mytomcat/test:/usr/loca
 
 #redis
 docker run -d -p 6379:6379 --name myredis01 -v /mydocker/myredis/data:/data -v /mydocker/myredis/conf/redis.conf:/usr/local/etc/redis/redis.conf redis redis-server /usr/local/etc/redis/redis.conf --appendonly yes
+
+attach 用法
+
+$ sudo docker attach 665b4a1e17b6 #by ID
+or
+$ sudo docker attach loving_heisenberg #by Name
+$ root@665b4a1e17b6:/#
+
+就是讲你当前terminal 的标准输入、输出、错误附加到制定的docker容器。
+通俗来讲就是 当前终端里可以看到 ENTRYPOINT/CMD 进程的输出，你发送 CTRL-c 信号(输入) 直接会终止docker 运行。
+如果 ENTRYPOINT/CMD 没有标准输出，那么attach 上去了，什么也没有，就好像假死了。
+
+exec 用法
+$ sudo docker exec -i -t 665b4a1e17b6 /bin/bash #by ID
+or
+
+$ sudo docker exec -i -t loving_heisenberg /bin/bash #by Name
+$ root@665b4a1e17b6:/#
+
+在docker 里面新开了一个bash 进程，在该终端可以通过命令和容器交互，类似于通过ssh和远程linux server 交互。
+
+所以大多数情况，可以直接使用 docker exec 命令。
+
