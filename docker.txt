@@ -98,3 +98,15 @@ $ root@665b4a1e17b6:/#
 
 所以大多数情况，可以直接使用 docker exec 命令。
 
+docker exec -i -t 9423836f63d5 /bin/bash
+docker cp 25ea04f2beb6:/etc/nginx/nginx.conf /myspace/mynginx/conf
+docker cp 25ea04f2beb6:/etc/nginx/conf.d/default.conf /myspace/mynginx/conf/conf.d/default.conf
+mkdir conf html logs
+docker run \
+    --name mynginx3 \
+    -p 80:80 \-v  /myspace/mynginx/conf/nginx.conf:/etc/nginx/nginx.conf \
+    -v /myspace/mynginx/conf/conf.d/:/etc/nginx/conf.d  \
+    -v /myspace/mynginx/logs/:/var/log/nginx \
+    -v /myspace/mynginx/html/:/usr/share/nginx/html \
+    -d nginx
+    
