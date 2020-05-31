@@ -87,6 +87,9 @@ $ root@665b4a1e17b6:/#
 通俗来讲就是 当前终端里可以看到 ENTRYPOINT/CMD 进程的输出，你发送 CTRL-c 信号(输入) 直接会终止docker 运行。
 如果 ENTRYPOINT/CMD 没有标准输出，那么attach 上去了，什么也没有，就好像假死了。
 
+退出容器
+exit  容器停止退出
+ctrl+p+q  容器不停止退出
 exec 用法
 $ sudo docker exec -i -t 665b4a1e17b6 /bin/bash #by ID
 or
