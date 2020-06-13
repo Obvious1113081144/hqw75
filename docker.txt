@@ -140,3 +140,9 @@ docker run \
     -v /myspace/mynginx/html/:/usr/share/nginx/html \
     -d nginx
     
+容器生成新镜像上传阿里云
+docker commit -a qiwu -m 'my nginx' 7e9f81f17010 mynginx:1.0
+docker tag 5ddbfeeda0db registry.cn-hangzhou.aliyuncs.com/qiwubuy/mynginx:1.0
+docker push registry.cn-hangzhou.aliyuncs.com/qiwubuy/mynginx:1.0
+docker tag [ImageId] registry.cn-hangzhou.aliyuncs.com/qiwubuy/mynginx:[镜像版本号]
+
