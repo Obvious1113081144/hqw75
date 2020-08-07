@@ -22,7 +22,16 @@
 
    RedisCacheConfiguration
 
-
+springCache的不足：
+1读模式
+   缓存穿透：查询一个null数据。解决：缓存空数据：cache-null-values=true
+   缓存击穿：大量并发进来同时查询一个正好过期的数据。解决：加锁。默认无锁sync=true
+   缓存雪崩：大量的key同时过期。解决加上过期时间 spring.cache.redis.time-to-live=360000
+2写模式（缓存与数据库不一致）
+  1）读写加锁
+  2）引入canal，感知到mysql的更新去更新数据库
+  3） 读多写多的直接去数据库查询
+  总结。常规数据(读多写少，即时性、一致性要求不高的数据）完全可以使用spring-cache
 
 
 
