@@ -1,0 +1,29 @@
+整合springCache简化缓存开发
+1）引入依赖  spring-boot-starter-data-redis  spring-boot-starter-cache
+2) 写配置
+    2.1）自动配置好了缓存管理器RedisCacheManager
+    2.2) 配置使用redis做缓存 spring.cache.type=redis
+3)测试使用缓存
+@Cacheable: Triggers cache population.
+
+@CacheEvict: Triggers cache eviction.
+
+@CachePut: Updates the cache without interfering with the method execution.
+
+@Caching: Regroups multiple cache operations to be applied on a method.
+
+@CacheConfig: Shares some common cache-related settings at class-level.
+3.1 开启缓存功能 @EnableCaching
+3.2 写注解
+3.3 自定义
+   3.3.1 指定生成的缓存使用key
+   3.3.2 指定缓存的数据存活时间
+   3.3.3 将数据保存为json格式
+
+   RedisCacheConfiguration
+
+
+
+
+
+
